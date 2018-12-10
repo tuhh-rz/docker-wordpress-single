@@ -1,1 +1,0 @@
-# Single Site WordPress Image

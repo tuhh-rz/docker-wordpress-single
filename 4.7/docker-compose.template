@@ -2,7 +2,7 @@ version: '2.2'
 
 services:
     app:
-        image: 'docker.rz.tu-harburg.de:5000/docker/wordpress:latest'
+        image: 'docker.rz.tu-harburg.de:5000/docker/wordpress:4.7'
         env_file:
             - ./.env
         labels:
