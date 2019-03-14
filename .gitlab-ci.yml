@@ -1,6 +1,8 @@
 variables:
     CONTAINER_RELEASE_IMAGE: docker.rz.tu-harburg.de:5000/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
     LATEST_VERSION: '5.1'
+    MAPPING: '4:4.9,5:5.1'
+
 
 .build_script_template:
     script:  &build_script_definition
@@ -16,7 +18,8 @@ variables:
     script:  &deploy_script_definition
         - pwd
         - sudo docker push "${CONTAINER_RELEASE_IMAGE}":"${VERSION}${VARIANT:+-$VARIANT}"
-        - if [ ! -z ${LATEST_VERSION} ] && [ "${LATEST_VERSION}" == "${VERSION}${VARIANT:+-$VARIANT}" ]; then sudo docker tag "${CONTAINER_RELEASE_IMAGE}":"${VERSION}${VARIANT:+-$VARIANT}" "${CONTAINER_RELEASE_IMAGE}:latest"; sudo docker push "${CONTAINER_RELEASE_IMAGE}:latest"; fi
+        - if [ ! -z "${LATEST_VERSION}" ] && [ "${LATEST_VERSION}" == "${VERSION}${VARIANT:+-$VARIANT}" ]; then sudo docker tag "${CONTAINER_RELEASE_IMAGE}":"${VERSION}${VARIANT:+-$VARIANT}" "${CONTAINER_RELEASE_IMAGE}:latest"; sudo docker push "${CONTAINER_RELEASE_IMAGE}:latest"; fi
+        - if [ ! -z "${MAPPING}" ]; then tag="$(perl -pe 's/.*(?:^|,)(.+):$ENV{VERSION}(?:$|,).*/$1/' <<<"${MAPPING}")"; if [ "${tag}" != "${MAPPING}" ]; then sudo docker tag "${CONTAINER_RELEASE_IMAGE}":"${VERSION}${VARIANT:+-$VARIANT}" "${CONTAINER_RELEASE_IMAGE}:${tag}"; sudo docker push "${CONTAINER_RELEASE_IMAGE}:${tag}"; fi; fi
 
 .build_branches_script_template:
     script:  &build_branches_script_definition
