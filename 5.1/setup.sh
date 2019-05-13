@@ -99,6 +99,9 @@ PHP
 
     su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete hello" www-data
     #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete akismet" www-data
+
+    if [ -d /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git ]; then git -C /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/ pull; else git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/; fi
+    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
 fi
 
 echo "!!!! quick'n'dirty hack !!!!"
