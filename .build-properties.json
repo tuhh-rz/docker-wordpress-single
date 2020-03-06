@@ -1,19 +1,19 @@
 {
-  "dockertags": {
+  "docker-tags": {
     "4.9": {
-      "buildbranch": "master"
+      "build-branch": "master"
     },
     "5.0": {
-      "buildbranch": "master"
+      "build-branch": "master"
     },
     "5.1": {
-      "buildbranch": "master"
+      "build-branch": "master"
     },
     "5.2": {
-      "buildbranch": "master"
+      "build-branch": "master"
     },
     "5.3": {
-      "buildbranch": "master"
+      "build-branch": "master"
     }
   }
 }
