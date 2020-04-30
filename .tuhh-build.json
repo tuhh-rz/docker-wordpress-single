@@ -2,7 +2,8 @@
     "active": true,
     "version-check": {
         "active": true,
-        "master_key": "Wordpress",
+        "master_key": "WordPress",
+        "sub_key": "WordPress",
         "version_digits_in_key": 2
     },
     "registries": [
