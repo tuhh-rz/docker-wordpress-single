@@ -95,7 +95,13 @@ PHP
   su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete hello" www-data
   #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete akismet" www-data
 
-  if [ -d "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git" ]; then git -C "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/" pull; else git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/"; fi
+  if [ -d "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git" ]; then
+    git -C "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/" pull
+  else
+    git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/"
+  fi
+
+  chown www-data: "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/"
   su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
 fi
 
@@ -122,7 +128,5 @@ find /var/www/html -type f -print0 | xargs -0 chmod 660
 find /var/www/html -type d -print0 | xargs -0 chmod 770
 
 chmod 440 "/var/www/html/${RELATIVE_PATH}/.htaccess"
-
-chown mysql -R /var/log/mysql
 
 exec /usr/bin/supervisord -nc /etc/supervisord.conf
