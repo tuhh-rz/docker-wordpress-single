@@ -131,4 +131,6 @@ find /var/www/html -type d -print0 | xargs -0 chmod 770
 
 chmod 440 "/var/www/html/${RELATIVE_PATH}/.htaccess"
 
+chown mysql -R /var/log/mysql
+
 exec /usr/bin/supervisord -nc /etc/supervisord.conf
