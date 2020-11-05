@@ -102,7 +102,7 @@ PHP
   fi
 
   chown www-data: "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/"
-  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
 fi
 
 echo "!!!! quick'n'dirty hack !!!!"
