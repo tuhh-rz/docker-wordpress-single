@@ -2,7 +2,7 @@ version: '2.2'
 
 services:
     app:
-        image: 'docker.rz.tu-harburg.de:5000/docker/wordpress:5.1'
+        image: 'docker.rz.tu-harburg.de/docker/wordpress:5.1'
         env_file:
             - ./.env
         labels:
@@ -56,7 +56,7 @@ services:
         mem_limit: 512MB
 
     db:
-        image: 'docker.rz.tu-harburg.de:5000/docker/mariadb:latest'
+        image: 'docker.rz.tu-harburg.de/docker/mariadb:latest'
         env_file:
           - ./.env
         labels:
