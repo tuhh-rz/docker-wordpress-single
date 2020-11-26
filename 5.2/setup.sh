@@ -1,18 +1,18 @@
 #!/bin/bash
 
 if [[ ${ENABLE_SSL} == "true" ]]; then
-    sed -i '/SSLCertificateFile/d' /etc/apache2/sites-available/default-ssl.conf
-    sed -i '/SSLCertificateKeyFile/d' /etc/apache2/sites-available/default-ssl.conf
-    sed -i '/SSLCertificateChainFile/d' /etc/apache2/sites-available/default-ssl.conf
-    
-    sed -i 's/SSLEngine.*/SSLEngine on\nSSLCertificateFile \/etc\/apache2\/ssl\/cert.pem\nSSLCertificateKeyFile \/etc\/apache2\/ssl\/private_key.pem\nSSLCertificateChainFile \/etc\/apache2\/ssl\/cert-chain.pem/' /etc/apache2/sites-available/default-ssl.conf
+  sed -i '/SSLCertificateFile/d' /etc/apache2/sites-available/default-ssl.conf
+  sed -i '/SSLCertificateKeyFile/d' /etc/apache2/sites-available/default-ssl.conf
+  sed -i '/SSLCertificateChainFile/d' /etc/apache2/sites-available/default-ssl.conf
 
-    ln -s /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/
-    
-    /usr/sbin/a2enmod ssl
+  sed -i 's/SSLEngine.*/SSLEngine on\nSSLCertificateFile \/etc\/apache2\/ssl\/cert.pem\nSSLCertificateKeyFile \/etc\/apache2\/ssl\/private_key.pem\nSSLCertificateChainFile \/etc\/apache2\/ssl\/cert-chain.pem/' /etc/apache2/sites-available/default-ssl.conf
+
+  ln -s /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/
+
+  /usr/sbin/a2enmod ssl
 else
-    /usr/sbin/a2dismod ssl
-    rm /etc/apache2/sites-enabled/default-ssl.conf
+  /usr/sbin/a2dismod ssl
+  rm /etc/apache2/sites-enabled/default-ssl.conf
 fi
 
 /usr/sbin/a2enmod rewrite
@@ -51,53 +51,58 @@ find /var/www/html/ ! -user www-data -exec chown www-data: {} +
 
 if [ -e "/usr/local/bin/wp" ]; then
 
-    # wp-config.php anlegen
-    if [ -z "${DBNAME+x}" ] || [ -z "${DBUSER+x}" ] || [ -z "${DBPASS+x}" ] || [ -z "${DBHOST+x}" ] || [ -z "${DBPREFIX+x}" ]; then
-         echo 'WARNING: skipping `wp config create`: One or more environment variables not defined: DBNAME, DBUSER, DBPASS, DBHOST, DBPREFIX'
-    else
-        su -s /bin/bash -c "/usr/local/bin/wp --path=/var/www/html/${RELATIVE_PATH} config create --dbname='${DBNAME}' --dbuser='${DBUSER}' --dbpass='${DBPASS}' --dbhost='${DBHOST}' --dbprefix='${DBPREFIX}' --skip-check --force --extra-php <<PHP
+  # wp-config.php anlegen
+  if [ -z "${DBNAME+x}" ] || [ -z "${DBUSER+x}" ] || [ -z "${DBPASS+x}" ] || [ -z "${DBHOST+x}" ] || [ -z "${DBPREFIX+x}" ]; then
+    echo "WARNING: skipping 'wp config create': One or more environment variables not defined: DBNAME, DBUSER, DBPASS, DBHOST, DBPREFIX"
+  else
+    su -s /bin/bash -c "/usr/local/bin/wp --path=/var/www/html/${RELATIVE_PATH} config create --dbname='${DBNAME}' --dbuser='${DBUSER}' --dbpass='${DBPASS}' --dbhost='${DBHOST}' --dbprefix='${DBPREFIX}' --skip-check --force --extra-php <<PHP
 
 define('AUTOMATIC_UPDATER_DISABLED', ${AUTOMATIC_UPDATER_DISABLED});
 define('DISABLE_WP_CRON', ${DISABLE_WP_CRON});
 PHP
 " www-data
-    fi
+  fi
 
-    # WP initialisieren
-    if [ -n "${INITIAL_TITLE}" ] && [ -n "${INITIAL_URL}" ] && [ -n "${INITIAL_ADMIN_USER}" ] && [ -n "${INITIAL_ADMIN_PASSWORD}" ] && [ -n "${INITIAL_ADMIN_EMAIL}" ]; then
-        su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core install --title='${INITIAL_TITLE}' --url='${INITIAL_URL}' --admin_user='${INITIAL_ADMIN_USER}' --admin_password='${INITIAL_ADMIN_PASSWORD}' --admin_email='${INITIAL_ADMIN_EMAIL}' --skip-email" www-data
-    else
-        echo 'WARNING: skipping `wp core install`: One or more environment variables not defined: INITIAL_TITLE, INITIAL_URL, INITIAL_ADMIN_USER, INITIAL_ADMIN_PASSWORD, INITIAL_ADMIN_EMAIL'
-    fi
+  # WP initialisieren
+  if [ -n "${INITIAL_TITLE}" ] && [ -n "${INITIAL_URL}" ] && [ -n "${INITIAL_ADMIN_USER}" ] && [ -n "${INITIAL_ADMIN_PASSWORD}" ] && [ -n "${INITIAL_ADMIN_EMAIL}" ]; then
+    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core install --title='${INITIAL_TITLE}' --url='${INITIAL_URL}' --admin_user='${INITIAL_ADMIN_USER}' --admin_password='${INITIAL_ADMIN_PASSWORD}' --admin_email='${INITIAL_ADMIN_EMAIL}' --skip-email" www-data
+  else
+    echo "WARNING: skipping 'wp core install': One or more environment variables not defined: INITIAL_TITLE, INITIAL_URL, INITIAL_ADMIN_USER, INITIAL_ADMIN_PASSWORD, INITIAL_ADMIN_EMAIL"
+  fi
 
-    # Mitgelieferte Plugins sofort aktualisieren
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin update --all" www-data
+  # Mitgelieferte Plugins sofort aktualisieren
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin update --all" www-data
 
-    # Updates the active translation of core, plugins, and themes.
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core language update" www-data
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' theme update --all" www-data
+  # Updates the active translation of core, plugins, and themes.
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core language update" www-data
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' theme update --all" www-data
 
-    # WordPress Plugins
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-wp-smtp" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install h5p" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install wpdirauth" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-swipebox" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install shortcodes-ultimate" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install buddypress" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install akismet" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install stops-core-theme-and-plugin-updates" www-data
-    
+  # WordPress Plugins
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-wp-smtp" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install h5p" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install wpdirauth" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-swipebox" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install shortcodes-ultimate" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install buddypress" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install akismet" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install stops-core-theme-and-plugin-updates" www-data
 
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate wpdirauth" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate easy-wp-smtp" www-data
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate akismet" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate stops-core-theme-and-plugin-updates" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate wpdirauth" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate easy-wp-smtp" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate akismet" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate stops-core-theme-and-plugin-updates" www-data
 
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete hello" www-data
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete akismet" www-data
+  su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete hello" www-data
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete akismet" www-data
 
-    if [ -d /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git ]; then git -C /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/ pull; else git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/; fi
-    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
+  if [ -d "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git" ]; then
+    git -C "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/" pull
+  else
+    git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/"
+  fi
+
+  chown www-data: "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/"
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
 fi
 
 echo "!!!! quick'n'dirty hack !!!!"
@@ -105,27 +110,27 @@ echo "Logout für LDAP auf 24 Stunden"
 perl -i -pe 's/\$intExpireTime *= *.*/\$intExpireTime = 60 * 60 * 24;/g' "/var/www/html/${RELATIVE_PATH}/wp-content/plugins/wpdirauth/wpDirAuth.php"
 
 if [ -n "${WP_THROTTLE_COMMENT_FLOOT_TIMEOUT}" ]; then
-    echo "!!!! quick'n'dirty hack !!!!"
-    echo "WP_THROTTLE_COMMENT_FLOOT_TIMEOUT (Default 15) ersetzen"
-    perl -i -pe 's/(if\s*\(\s*\(\$time_newcomment\s*-\s*\$time_lastcomment\)\s*<\s*)15(\s*\))/${1}$ENV{'WP_THROTTLE_COMMENT_FLOOT_TIMEOUT'}${2}/g' "/var/www/html/${RELATIVE_PATH}/wp-includes/comment.php"
+  echo "!!!! quick'n'dirty hack !!!!"
+  echo "WP_THROTTLE_COMMENT_FLOOT_TIMEOUT (Default 15) ersetzen"
+  perl -i -pe 's/(if\s*\(\s*\(\$time_newcomment\s*-\s*\$time_lastcomment\)\s*<\s*)15(\s*\))/${1}$ENV{'WP_THROTTLE_COMMENT_FLOOT_TIMEOUT'}${2}/g' "/var/www/html/${RELATIVE_PATH}/wp-includes/comment.php"
 fi
 
 echo 'Correction of insecure internal links …'
 if [[ $ENABLE_SSL == true ]]; then
-    site_url=$(su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' option get siteurl" www-data)
-    fqdn=$(perl -lne 'print $1 if /http(?:s|):\/\/(.*)/' <<<"${site_url}")
-    if [ -n ${fqdn} ]; then
-        su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' search-replace --report-changed-only "http://${fqdn}" "https://${fqdn}" " www-data
-    fi
+  site_url=$(su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' option get siteurl" www-data)
+  fqdn=$(perl -lne 'print $1 if /http(?:s|):\/\/(.*)/' <<<"${site_url}")
+  if [ -n "${fqdn}" ]; then
+    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' search-replace --report-changed-only http://${fqdn} https://${fqdn}" www-data
+  fi
 fi
 
 # consider a table prefix
 export TABLE_PREFIX=${TABLE_PREFIX:-wp_}
-perl -i -pe 's/^(\$table_prefix\s+=\s+).*/\1\x27$ENV{'TABLE_PREFIX'}\x27;/g' /var/www/html/${RELATIVE_PATH}/wp-config.php
+perl -i -pe 's/^(\$table_prefix\s+=\s+).*/\1\x27$ENV{'TABLE_PREFIX'}\x27;/g' "/var/www/html/${RELATIVE_PATH}/wp-config.php"
 
 find /var/www/html -type f -print0 | xargs -0 chmod 660
 find /var/www/html -type d -print0 | xargs -0 chmod 770
 
-chmod 440 /var/www/html/${RELATIVE_PATH}/.htaccess
+chmod 440 "/var/www/html/${RELATIVE_PATH}/.htaccess"
 
 exec /usr/bin/supervisord -nc /etc/supervisord.conf
