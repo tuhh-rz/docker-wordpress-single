@@ -17,19 +17,7 @@
     }
   ],
   "image-tags": {
-    "5.0": {
-      "action": "build"
-    },
-    "5.1": {
-      "action": "build"
-    },
     "5.2": {
-      "action": "build"
-    },
-    "5.3": {
-      "action": "build"
-    },
-    "5.4": {
       "action": "build"
     },
     "5.5": {
