@@ -1,15 +1,15 @@
 #!/bin/bash
 
 if [[ ${ENABLE_SSL} == "true" ]]; then
-    sed -i '/SSLCertificateFile/d' /etc/apache2/sites-available/default-ssl.conf
-    sed -i '/SSLCertificateKeyFile/d' /etc/apache2/sites-available/default-ssl.conf
-    sed -i '/SSLCertificateChainFile/d' /etc/apache2/sites-available/default-ssl.conf
+  sed -i '/SSLCertificateFile/d' /etc/apache2/sites-available/default-ssl.conf
+  sed -i '/SSLCertificateKeyFile/d' /etc/apache2/sites-available/default-ssl.conf
+  sed -i '/SSLCertificateChainFile/d' /etc/apache2/sites-available/default-ssl.conf
 
-    sed -i 's/SSLEngine.*/SSLEngine on\nSSLCertificateFile \/etc\/apache2\/ssl\/cert.pem\nSSLCertificateKeyFile \/etc\/apache2\/ssl\/private_key.pem\nSSLCertificateChainFile \/etc\/apache2\/ssl\/cert-chain.pem/' /etc/apache2/sites-available/default-ssl.conf
+  sed -i 's/SSLEngine.*/SSLEngine on\nSSLCertificateFile \/etc\/apache2\/ssl\/cert.pem\nSSLCertificateKeyFile \/etc\/apache2\/ssl\/private_key.pem\nSSLCertificateChainFile \/etc\/apache2\/ssl\/cert-chain.pem/' /etc/apache2/sites-available/default-ssl.conf
 
-    ln -s /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/
+  ln -s /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled/
 
-    /usr/sbin/a2enmod ssl
+  /usr/sbin/a2enmod ssl
 else
   /usr/sbin/a2dismod ssl
   rm /etc/apache2/sites-enabled/default-ssl.conf
@@ -34,12 +34,12 @@ export DISABLE_WP_CRON=${DISABLE_WP_CRON:-false}
 export AUTOMATIC_UPDATER_DISABLED=${AUTOMATIC_UPDATER_DISABLED:-true}
 
 # Limits
-perl -i -pe 's/^(\s*;\s*)*upload_max_filesize.*/upload_max_filesize = $ENV{'UPLOAD_MAX_FILESIZE'}/g' /etc/php/7.2/apache2/php.ini
-perl -i -pe 's/^(\s*;\s*)*post_max_size.*/post_max_size = $ENV{'POST_MAX_SIZE'}/g' /etc/php/7.2/apache2/php.ini
-perl -i -pe 's/^(\s*;\s*)*max_execution_time.*/max_execution_time = $ENV{'MAX_EXECUTION_TIME'}/g' /etc/php/7.2/apache2/php.ini
-perl -i -pe 's/^(\s*;\s*)*max_file_uploads.*/max_file_uploads = $ENV{'MAX_FILE_UPLOADS'}/g' /etc/php/7.2/apache2/php.ini
-perl -i -pe 's/^(\s*;\s*)*max_input_vars.*/max_input_vars = $ENV{'MAX_INPUT_VARS'}/g' /etc/php/7.2/apache2/php.ini
-perl -i -pe 's/^(\s*;\s*)*memory_limit.*/memory_limit = $ENV{'MEMORY_LIMIT'}/g' /etc/php/7.2/apache2/php.ini
+perl -i -pe 's/^(\s*;\s*)*upload_max_filesize.*/upload_max_filesize = $ENV{'UPLOAD_MAX_FILESIZE'}/g' /etc/php/7.4/apache2/php.ini
+perl -i -pe 's/^(\s*;\s*)*post_max_size.*/post_max_size = $ENV{'POST_MAX_SIZE'}/g' /etc/php/7.4/apache2/php.ini
+perl -i -pe 's/^(\s*;\s*)*max_execution_time.*/max_execution_time = $ENV{'MAX_EXECUTION_TIME'}/g' /etc/php/7.4/apache2/php.ini
+perl -i -pe 's/^(\s*;\s*)*max_file_uploads.*/max_file_uploads = $ENV{'MAX_FILE_UPLOADS'}/g' /etc/php/7.4/apache2/php.ini
+perl -i -pe 's/^(\s*;\s*)*max_input_vars.*/max_input_vars = $ENV{'MAX_INPUT_VARS'}/g' /etc/php/7.4/apache2/php.ini
+perl -i -pe 's/^(\s*;\s*)*memory_limit.*/memory_limit = $ENV{'MEMORY_LIMIT'}/g' /etc/php/7.4/apache2/php.ini
 
 perl -i -pe 's/<\/VirtualHost>/<Directory \/var\/www\/html>\nAllowOverride ALL\n<\/Directory>\n<\/VirtualHost>/' /etc/apache2/sites-available/000-default.conf
 
@@ -61,43 +61,42 @@ define('AUTOMATIC_UPDATER_DISABLED', ${AUTOMATIC_UPDATER_DISABLED});
 define('DISABLE_WP_CRON', ${DISABLE_WP_CRON});
 PHP
 " www-data
-    fi
+  fi
 
-    # WP initialisieren
-    if [ -n "${INITIAL_TITLE}" ] && [ -n "${INITIAL_URL}" ] && [ -n "${INITIAL_ADMIN_USER}" ] && [ -n "${INITIAL_ADMIN_PASSWORD}" ] && [ -n "${INITIAL_ADMIN_EMAIL}" ]; then
-        su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core install --title='${INITIAL_TITLE}' --url='${INITIAL_URL}' --admin_user='${INITIAL_ADMIN_USER}' --admin_password='${INITIAL_ADMIN_PASSWORD}' --admin_email='${INITIAL_ADMIN_EMAIL}' --skip-email" www-data
-    else
-        echo 'WARNING: skipping "wp core install": One or more environment variables not defined: INITIAL_TITLE, INITIAL_URL, INITIAL_ADMIN_USER, INITIAL_ADMIN_PASSWORD, INITIAL_ADMIN_EMAIL'
-    fi
+  # WP initialisieren
+  if [ -n "${INITIAL_TITLE}" ] && [ -n "${INITIAL_URL}" ] && [ -n "${INITIAL_ADMIN_USER}" ] && [ -n "${INITIAL_ADMIN_PASSWORD}" ] && [ -n "${INITIAL_ADMIN_EMAIL}" ]; then
+    su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core install --title='${INITIAL_TITLE}' --url='${INITIAL_URL}' --admin_user='${INITIAL_ADMIN_USER}' --admin_password='${INITIAL_ADMIN_PASSWORD}' --admin_email='${INITIAL_ADMIN_EMAIL}' --skip-email" www-data
+  else
+    echo 'WARNING: skipping "wp core install": One or more environment variables not defined: INITIAL_TITLE, INITIAL_URL, INITIAL_ADMIN_USER, INITIAL_ADMIN_PASSWORD, INITIAL_ADMIN_EMAIL'
+  fi
 
-    # Mitgelieferte Plugins sofort aktualisieren
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin update --all" www-data
+  # Mitgelieferte Plugins sofort aktualisieren
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin update --all" www-data
 
-    # Updates the active translation of core, plugins, and themes.
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core language update" www-data
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' theme update --all" www-data
+  # Updates the active translation of core, plugins, and themes.
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' core language update" www-data
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' theme update --all" www-data
 
-    # WordPress Plugins
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-wp-smtp" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install h5p" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install wpdirauth" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-swipebox" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install shortcodes-ultimate" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install buddypress" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install akismet" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install stops-core-theme-and-plugin-updates" www-data
+  # WordPress Plugins
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-wp-smtp" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install h5p" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install wpdirauth" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install easy-swipebox" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install shortcodes-ultimate" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install buddypress" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install akismet" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin install stops-core-theme-and-plugin-updates" www-data
 
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate wpdirauth" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate easy-wp-smtp" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate akismet" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate stops-core-theme-and-plugin-updates" www-data
 
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate wpdirauth" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate easy-wp-smtp" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate akismet" www-data
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate stops-core-theme-and-plugin-updates" www-data
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete hello" www-data
+  #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete akismet" www-data
 
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete hello" www-data
-    #su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin delete akismet" www-data
-
-    # if [ -d /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git ]; then git -C /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/ pull; else git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/; fi
-    # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
+  # if [ -d /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/.git ]; then git -C /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/ pull; else git clone https://collaborating.tuhh.de/open-source/wordpress-plugins/tuhh-filter.git /var/www/html/${RELATIVE_PATH}/wp-content/plugins/tuhh-filter/; fi
+  # su -s /bin/bash -c "/usr/local/bin/wp --path='/var/www/html/${RELATIVE_PATH}' plugin activate tuhh-filter" www-data
 fi
 
 # echo "!!!! quick'n'dirty hack !!!!"
